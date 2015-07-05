@@ -22710,6 +22710,14 @@ _ACEOF
     fi
 }
 
+
+SOURCES="$SOURCES $srcdir/src/video/helenos/*.c"
+EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lgui -ldraw -lc4posix -lsoftrend -lmath"
+cat >>confdefs.h <<\_ACEOF
+	#define SDL_VIDEO_DRIVER_HELENOS 1
+_ACEOF
+have_video=yes
+
 CheckX11()
 {
     # Check whether --enable-video-x11 was given.

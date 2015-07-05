@@ -413,6 +413,10 @@ extern VideoBootStrap CACA_bootstrap;
 #if SDL_VIDEO_DRIVER_DUMMY
 extern VideoBootStrap DUMMY_bootstrap;
 #endif
+#if SDL_VIDEO_DRIVER_HELENOS
+extern VideoBootStrap HELENOS_bootstrap;
+#endif
+
 
 /* This is the current video device */
 extern SDL_VideoDevice *current_video;
