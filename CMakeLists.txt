@@ -391,8 +391,6 @@ set(SOURCE_FILES
     src/video/ggi/SDL_ggimouse_c.h
     src/video/ggi/SDL_ggivideo.c
     src/video/ggi/SDL_ggivideo.h
-    src/video/helenos/SDL_helenos_events.c
-    src/video/helenos/SDL_helenos_events_c.h
     src/video/helenos/SDL_helenos_mouse.c
     src/video/helenos/SDL_helenos_mouse_c.h
     src/video/helenos/SDL_helenos_video.c
@@ -720,4 +718,4 @@ set(SOURCE_FILES
 
 include_directories(include)
 include_directories(/home/jan/Development/HelenOS/coastline-build/helenos/include)
-add_executable(SDL_1_2_15 ${SOURCE_FILES})
+add_executable(SDL_1_2_15 ${SOURCE_FILES} src/video/helenos/SDL_helenos_events.h)

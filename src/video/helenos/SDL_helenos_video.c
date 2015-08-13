@@ -61,8 +61,10 @@ static int HELENOS_AllocHWSurface(_THIS, SDL_Surface *surface);
 static int HELENOS_LockHWSurface(_THIS, SDL_Surface *surface);
 static void HELENOS_UnlockHWSurface(_THIS, SDL_Surface *surface);
 static void HELENOS_FreeHWSurface(_THIS, SDL_Surface *surface);
+static void HELENOS_InitOSKeymap(_THIS);
+static void HELENOS_PumpEvents(_THIS);
 
-/* GGI driver bootstrap functions */
+/* HelenOS driver bootstrap functions */
 
 static int HELENOS_Available(void)
 {
@@ -117,8 +119,8 @@ static SDL_VideoDevice *HELENOS_CreateDevice(int devindex)
 	device->IconifyWindow = NULL;
 	device->GrabInput = NULL;
 	device->GetWMInfo = NULL;
-	device->InitOSKeymap = NULL;
-	device->PumpEvents = NULL;
+	device->InitOSKeymap = HELENOS_InitOSKeymap;
+	device->PumpEvents = HELENOS_PumpEvents;
 
 	device->free = HELENOS_DeleteDevice;
 
@@ -139,11 +141,29 @@ int HELENOS_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	this->hidden->window = window_open("comp:0/winreg", WINDOW_MAIN | WINDOW_DECORATED, "SDL window");
 	if (!this->hidden->window) {
-		printf("Cannot open main window.\n");
+		SDL_SetError("Cannot open main window.\n");
 		return 1;
 	}
-	this->hidden->surface = NULL;
-	this->hidden->canvas = NULL;
+;
+	this->hidden->surface = surface_create(FRAME_WIDTH, FRAME_HEIGHT, NULL, 0);
+
+	if(!this->hidden->surface){
+		SDL_SetError("Could not create surface!");
+		return NULL;
+	}
+
+	this->hidden->canvas = create_canvas(window_root(this->hidden->window),
+					     FRAME_WIDTH, FRAME_HEIGHT, this->hidden->surface);
+
+	if(!this->hidden->canvas) {
+		surface_destroy(this->hidden->surface);
+		window_close(this->hidden->window);
+		SDL_SetError("Cannot create canvas.\n");
+		return 1;
+	}
+
+	window_resize(this->hidden->window, 0, 0, FRAME_WIDTH + 8, FRAME_HEIGHT + 28,
+		      WINDOW_PLACEMENT_RIGHT | WINDOW_PLACEMENT_BOTTOM);
 
 	window_exec(this->hidden->window);
 
@@ -172,12 +192,8 @@ static void HELENOS_DirectUpdate(_THIS, int numrects, SDL_Rect *rects);
 
 SDL_Surface *HELENOS_SetVideoMode(_THIS, SDL_Surface *current, int width, int height, int bpp, Uint32 flags)
 {
-	if(bpp!=32){
-		SDL_SetError("Only depth of 32 supported!");
-		return NULL;
-	}
-	window_resize(this->hidden->window, 0, 0, width + 8, height + 28,
-		      WINDOW_PLACEMENT_LEFT | WINDOW_PLACEMENT_TOP);
+	/* HelenOS supports only 32 bits per pixel */
+	bpp = 32;
 
 	if(this->hidden->surface){
 		surface_destroy(this->hidden->surface);
@@ -200,10 +216,13 @@ SDL_Surface *HELENOS_SetVideoMode(_THIS, SDL_Surface *current, int width, int he
 	this->hidden->canvas = create_canvas(window_root(this->hidden->window),
 					     width, height, this->hidden->surface);
 
-	if(!this->hidden->canvas){
+	if(!this->hidden->canvas) {
 		SDL_SetError("Could not create canvas!");
 		return NULL;
 	}
+
+	window_resize(this->hidden->window, 0, 0, width + 8, height + 28,
+		      WINDOW_PLACEMENT_LEFT | WINDOW_PLACEMENT_TOP);
 
 	
 	/* Set up the new mode framebuffer */
@@ -211,6 +230,8 @@ SDL_Surface *HELENOS_SetVideoMode(_THIS, SDL_Surface *current, int width, int he
 	current->w = width;
 	current->h = height;
 	current->pitch = (uint16_t)(width*4);
+	current->format->BitsPerPixel = bpp;
+	current->format->BytesPerPixel = bpp/8;
 	current->pixels = surface_pixmap_access(this->hidden->surface)->data;
 
 	/* Set the blit function */
@@ -253,4 +274,12 @@ void HELENOS_VideoQuit(_THIS)
 }
 void HELENOS_FinalQuit(void) 
 {
+}
+
+void HELENOS_InitOSKeymap(_THIS){
+
+}
+
+void HELENOS_PumpEvents(_THIS){
+
 }
