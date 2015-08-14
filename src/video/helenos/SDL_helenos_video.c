@@ -40,6 +40,7 @@
 #include "../../events/SDL_events_c.h"
 #include "SDL_helenos_video.h"
 #include "SDL_helenos_mouse_c.h"
+#include "SDL_helenos_events.h"
 
 
 struct private_hwdata
@@ -61,9 +62,6 @@ static int HELENOS_AllocHWSurface(_THIS, SDL_Surface *surface);
 static int HELENOS_LockHWSurface(_THIS, SDL_Surface *surface);
 static void HELENOS_UnlockHWSurface(_THIS, SDL_Surface *surface);
 static void HELENOS_FreeHWSurface(_THIS, SDL_Surface *surface);
-static void HELENOS_InitOSKeymap(_THIS);
-static void HELENOS_PumpEvents(_THIS);
-
 /* HelenOS driver bootstrap functions */
 
 static int HELENOS_Available(void)
@@ -216,6 +214,11 @@ SDL_Surface *HELENOS_SetVideoMode(_THIS, SDL_Surface *current, int width, int he
 	this->hidden->canvas = create_canvas(window_root(this->hidden->window),
 					     width, height, this->hidden->surface);
 
+	sig_connect(&this->hidden->canvas->keyboard_event, NULL,
+		    canvas_push_keyboard_event);
+	sig_connect(&this->hidden->canvas->position_event, NULL,
+		    canvas_push_position_event);
+
 	if(!this->hidden->canvas) {
 		SDL_SetError("Could not create canvas!");
 		return NULL;
@@ -274,12 +277,4 @@ void HELENOS_VideoQuit(_THIS)
 }
 void HELENOS_FinalQuit(void) 
 {
-}
-
-void HELENOS_InitOSKeymap(_THIS){
-
-}
-
-void HELENOS_PumpEvents(_THIS){
-
 }

@@ -20,26 +20,11 @@
     slouken@libsdl.org
 */
 #include "SDL_config.h"
+#include "SDL_helenos_video.h"
 
-#ifndef _SDL_ggivideo_h
-#define _SDL_ggivideo_h
+/* Functions to be exported */
+extern void HELENOS_InitOSKeymap(_THIS);
+extern void HELENOS_PumpEvents(_THIS);
+extern void canvas_push_keyboard_event(widget_t *widget, void *data);
+extern void canvas_push_position_event(widget_t *widget, void *data);
 
-#include <gui/window.h>
-#include <gui/canvas.h>
-#include <draw/surface.h>
-
-#include "SDL_mouse.h"
-#include "../SDL_sysvideo.h"
-
-#define _THIS SDL_VideoDevice *this
-
-/* Private display data */
-
-struct SDL_PrivateVideoData
-{
-	surface_t *surface;
-	window_t *window;
-	canvas_t *canvas;
-};
-
-#endif /* _SDL_ggivideo_h */

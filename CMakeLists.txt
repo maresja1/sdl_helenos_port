@@ -391,6 +391,8 @@ set(SOURCE_FILES
     src/video/ggi/SDL_ggimouse_c.h
     src/video/ggi/SDL_ggivideo.c
     src/video/ggi/SDL_ggivideo.h
+    src/video/helenos/SDL_helenos_events.c
+    src/video/helenos/SDL_helenos_events.h
     src/video/helenos/SDL_helenos_mouse.c
     src/video/helenos/SDL_helenos_mouse_c.h
     src/video/helenos/SDL_helenos_video.c
